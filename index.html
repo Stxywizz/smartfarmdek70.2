@@ -60,10 +60,10 @@ a{color:var(--ac2)}
 .mk i{font-style:normal;font-size:18px;display:block}
 .ct{display:grid;gap:10px}.ct a{display:flex;gap:12px;align-items:center;padding:13px;border-radius:14px;border:1px solid var(--bd);text-decoration:none;color:var(--tx);background:rgba(127,160,170,.08)}
 @media(min-width:768px){
- nav{top:0;bottom:auto;right:auto;width:92px;flex-direction:column;justify-content:flex-start;gap:6px;padding:90px 8px 0;border-top:0;border-right:1px solid var(--bd)}
- .top,main{margin-left:92px}
- .grid{grid-template-columns:repeat(4,1fr)}
- .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  nav{top:0;bottom:auto;right:auto;width:92px;flex-direction:column;justify-content:flex-start;gap:6px;padding:90px 8px 0;border-top:0;border-right:1px solid var(--bd)}
+  .top,main{margin-left:92px}
+  .grid{grid-template-columns:repeat(4,1fr)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 }
 
 .mentor{margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
@@ -246,9 +246,8 @@ async function load(la,lo,named){POS=[la,lo];forecast(la,lo);place(la,lo);
 }
 function render(){
  $('src').textContent=W.live?'● ข้อมูลจริง Open-Meteo':'ข้อมูลตัวอย่าง (ออฟไลน์)';$('src').className='chip'+(W.live?' live':'');
- $('t').textContent=Math.round(W.t)+'°C';$('rh').textContent=Math.round(W.rh)+'%';$('rain').textContent=W.rain.toFixed(1)+' มม.';
- $('wind').textContent=Math.round(W.wind)+' กม./ชม.';$('lux').textContent=Math.round(W.rad*LUX_PER_WM2).toLocaleString()+' lx';
- $('upd').textContent='อัปเดต '+W.time.replace('T',' ');advice();
+ $('t').textContent=Math.round(W.t)+'°C';$('rh').textContent=Math.round(W.rh)+'\%';$('rain').textContent=W.rain.toFixed(1)+' มม.';
+ $('wind').textContent=Math.round(W.wind)+' กม./ชม.';$('lux').textContent=Math.round(W.rad*LUX_PER_WM2).toLocaleString()+' lx';$('upd').textContent='อัปเดต '+W.time.replace('T',' ');advice();
 }
 function advice(){
  if(!W)return;const p=PLANTS[$('plant').value],a=[],lx=W.rad*LUX_PER_WM2;
@@ -267,15 +266,14 @@ function locate(){
 
 // water
 $('wgo').onclick=()=>{
- if(!W)return;const p=PLANTS[$('wp').value],kc=p.kc[+$('ws').value],etc=kc*W.et0,net=Math.max(0,etc-.8*W.rain),a=+$('wa').value||0,n=+$('wn').value||0,l=net*a;
+ if(!W)return;const p=PLANTS[$('wp').value],kc=p.kc[+$('ws').value],etc=kc*W.et0,net=Math.max(0,etc-.8*W.rain),a=+$('wa').value\vert{}\vert{}0,n=+$('wn').value||0,l=net*a;
  $('wr').textContent=l.toFixed(1)+' ลิตร/ต้น';
  $('wd').innerHTML=`รวม ${(l*n).toFixed(0)} ลิตร • ET₀ ${W.et0.toFixed(2)} มม. × Kc ${kc} = ETc ${etc.toFixed(2)} มม./วัน • ฝนหัก ${(.8*W.rain).toFixed(1)} มม.`;
 };
 
 // camera
 let stream=null,mode='lux',loop=null;
-document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('g',x!==b));$('mlux').hidden=mode!=='lux';$('mleaf').hidden=mode!=='leaf';$('ccap').hidden=mode!=='leaf'});
-$('cs').onclick=async()=>{
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('g',x!==b));$('mlux').hidden=mode!=='lux';$('mleaf').hidden=mode!=='leaf';$('ccap').hidden=mode!=='leaf'});$('cs').onclick=async()=>{
  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});$('v').srcObject=stream;await $('v').play();$('cs').textContent='กล้องเปิดอยู่';lockExp();clearInterval(loop);loop=setInterval(measure,400)}
  catch(e){alert('เปิดกล้องไม่ได้ ต้องใช้ผ่าน HTTPS และอนุญาตกล้อง')}
 };
@@ -308,11 +306,10 @@ function analyze(d){
  for(let i=0;i<d.length;i+=4){const[hh,s,v]=rgb2hsv(d[i],d[i+1],d[i+2]);
   if(v<.22)D++;else if(s<.14&&v>.78)Wt++;else if(hh>60&&hh<170&&s>.2)G++}
  const T=G+D+Wt||1;cover={d:D/T*100,w:Wt/T*100};LR=null;
- $('pd').textContent=cover.d.toFixed(1);$('pw').textContent=cover.w.toFixed(1);$('bd').style.width=Math.min(100,cover.d*3)+'%';$('bw').style.width=Math.min(100,cover.w*3)+'%';$('cz').innerHTML='';
+ $('pd').textContent=cover.d.toFixed(1);$('pw').textContent=cover.w.toFixed(1);$('bd').style.width=Math.min(100,cover.d*3)+'%';$('bw').style.width=Math.min(100,cover.w*3)+'\%';$('cz').innerHTML='';
 }
 $('ccap').onclick=()=>{if(!$('v').videoWidth)return alert('เปิดกล้องก่อน');analyze(frame(160,120))};
-$('lfile').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=$('cv');c.width=160;c.height=120;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,160,120);analyze(x.getImageData(0,0,160,120).data);URL.revokeObjectURL(im.src)};im.src=URL.createObjectURL(f)};
-$('qgo').onclick=()=>{
+$('lfile').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=$('cv');c.width=160;c.height=120;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,160,120);analyze(x.getImageData(0,0,160,120).data);URL.revokeObjectURL(im.src)};im.src=URL.createObjectURL(f)};$('qgo').onclick=()=>{
  if(!cover||!W)return alert('ถ่ายใบก่อน');
  if(cover.d<1&&cover.w<1){$('cz').innerHTML='<div class="adv"><span>✅</span><span>ไม่พบรอยผิดปกติชัดเจนในภาพนี้</span></div>';return}
  const q1=$('q1').value,q2=$('q2').value,wet=W.rh>75||W.rain3>10,hot=W.t>=35,answered=(q1?1:0)+(q2?1:0);let c;
@@ -343,8 +340,7 @@ function tstat(){const n=TL.length;if(!n){$('tst').textContent='ยังไม�
  const a=TL.filter(x=>x.truth===x.top[0]).length,b=TL.filter(x=>x.top.includes(x.truth)).length;
  $('tst').textContent=`ทดสอบแล้ว ${n} รูป • ถูกอันดับ 1: ${(a/n*100).toFixed(0)}% • อยู่ใน 3 อันดับแรก: ${(b/n*100).toFixed(0)}%`}
 $('tsv').onclick=()=>{if(!LR)return alert('กด "ประเมินความเป็นไปได้" ก่อน');TL.push({truth:$('tt').value,top:LR.slice(0,3).map(x=>x[0]),d:cover.d,w:cover.w});try{localStorage.setItem('tl',JSON.stringify(TL))}catch(e){}tstat()};
-$('tclr').onclick=()=>{TL=[];try{localStorage.removeItem('tl')}catch(e){}tstat()};
-$('tcsv').onclick=()=>{if(!TL.length)return;
+$('tclr').onclick=()=>{TL=[];try{localStorage.removeItem('tl')}catch(e){}tstat()};$('tcsv').onclick=()=>{if(!TL.length)return;
  const t='\ufeffเฉลย,อันดับ1,อันดับ2,อันดับ3,รอยดำ%,รอยขาว%\n'+TL.map(x=>[x.truth,...x.top,x.d.toFixed(1),x.w.toFixed(1)].map(v=>`"${v}"`).join(',')).join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='leaf_test.csv';a.click()};
 tstat();
@@ -394,8 +390,8 @@ async function place(la,lo){
  }catch(e){}}
  if(n)$('loc').textContent='📍 '+n+($('loc').dataset.def?' (ค่าเริ่มต้น)':'');
 }
-// AI assistant (เรียก /api/chat ซึ่งเป็น Netlify Function)
-const AI_URL='/api/chat';let CH=[],busy=false;
+// AI assistant (เรียก /api ซึ่งเป็น Serverless Function ของ Vercel)
+const AI_URL='/api';let CH=[],busy=false;
 function bub(t,c){const d=document.createElement('div');d.className='b '+c;d.textContent=t;$('chat').appendChild(d);$('chat').scrollTop=1e6;return d}
 function aiCtx(){
  const c={plant:PLANTS[$('plant').value].n,place:$('loc').textContent.replace('📍 ','')};
@@ -416,13 +412,11 @@ async function ask(q){
  }catch(e){w.textContent='ขออภัย ใช้ผู้ช่วยไม่ได้ตอนนี้ ('+e.message+')';CH.pop()}
  busy=false;$('csend').disabled=false;
 }
-$('csend').onclick=()=>ask($('cin').value);
-$('cin').onkeydown=e=>{if(e.key==='Enter')ask($('cin').value)};
-$('chips').onclick=e=>{if(e.target.tagName==='BUTTON')ask(e.target.textContent)};
+$('csend').onclick=()=>ask($('cin').value);$('cin').onkeydown=e=>{if(e.key==='Enter')ask($('cin').value)};$('chips').onclick=e=>{if(e.target.tagName==='BUTTON')ask(e.target.textContent)};
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR)$('mic').hidden=true;else $('mic').onclick=()=>{const r=new SR();r.lang='th-TH';r.onresult=e=>{$('cin').value=e.results[0][0].transcript};r.start()};
 // 7-day forecast
-const WX=c=>c>=95?'⛈':c>=80?'🌦':c>=61?'🌧':c>=51?'🌦':c>=45?'🌫':c>=3?'☁️':c>=1?'⛅':'☀️';
+const WX=c=>c>=95?'⛈':c>=80?'🌦':c>=61?'🌧':c>=51?'🌦':c>=45?'🌫':c>=3?'☁️️':c>=1?'⛅':'☀️';
 async function forecast(la,lo){
  try{
   const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,et0_fao_evapotranspiration&forecast_days=7&timezone=auto`);
@@ -467,8 +461,7 @@ function draw(){
   L.marker([p.la,p.lo],{icon:L.divIcon({className:'',html:`<div class="mk">${h}</div>`,iconSize:[44,44],iconAnchor:[22,22]})}).bindPopup(`ลมจากทิศ ${p.wind_direction_10m}° ความเร็ว ${ws} กม./ชม.<br>ความชื้น ${Math.round(p.relative_humidity_2m)}% · เมฆ ${Math.round(p.cloud_cover)}%<br>ฝน ${p.precipitation} มม./ชม. · แสง ≈${lx.toLocaleString()} lx`).addTo(MG);
  });
  L.circleMarker(POS,{radius:6,color:'#2dd4bf',fillOpacity:.9}).addTo(MG);
- $('legend').textContent=LG[LY];
- $('mapst').textContent=`${GR.length} จุด${st?` · พบพายุฝนฟ้าคะนอง ${st} จุด`:''} · ${(GR[0]&&GR[0].time||'').replace('T',' ')}`;
+ $('legend').textContent=LG[LY];$('mapst').textContent=`${GR.length} จุด${st?` · พบพายุฝนฟ้าคะนอง ${st} จุด`:''} · ${(GR[0]&&GR[0].time||'').replace('T',' ')}`;
 }
 locate();
 </script>
