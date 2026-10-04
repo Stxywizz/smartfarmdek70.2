@@ -53,16 +53,17 @@ export default async function handler(req, res) {
   const system = SYSTEM + '\n\n' + ctxText(body.context);
   // ลองโมเดลตามลำดับ ถ้าตัวไหนโดนเลิกใช้ (404) จะข้ามไปตัวถัดไปอัตโนมัติ
   // ตั้งค่าเองได้ที่ Vercel > Environment Variables > GEMINI_MODEL
-  const models = [process.env.GEMINI_MODEL, 'gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite'].filter(Boolean);
+  const models = [process.env.GEMINI_MODEL, 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-2.5-flash'].filter(Boolean);
   const payload = JSON.stringify({
     systemInstruction: { parts: [{ text: system }] },
     contents: msgs.map((x) => ({ role: x.role, parts: [{ text: x.content }] })),
-    generationConfig: { maxOutputTokens: 2048, temperature: 0.4 },
+    generationConfig: { maxOutputTokens: 3000, temperature: 0.4 },
   });
 
   try {
     let apiRes = null;
     let lastStatus = 0;
+    let lastMsg = '';
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     const retryable = [400, 404, 429, 500, 502, 503, 504]; // ลองซ้ำ/ข้ามไปโมเดลถัดไป
     outer:
@@ -75,7 +76,10 @@ export default async function handler(req, res) {
         });
         if (apiRes.ok) break outer;
         lastStatus = apiRes.status;
-        console.error(`model ${m} attempt ${attempt + 1} failed (${apiRes.status}):`, await apiRes.text());
+        const errText = await apiRes.text();
+        console.error(`model ${m} attempt ${attempt + 1} failed (${apiRes.status}):`, errText);
+        try { lastMsg = JSON.parse(errText).error?.message || ''; } catch { lastMsg = ''; }
+        lastMsg = `${m}: ${lastMsg}`.slice(0, 120);
         if (!retryable.includes(apiRes.status)) break outer; // เช่น 401/403 คีย์ผิด ลองซ้ำไม่ช่วย
         if (apiRes.status === 404 || apiRes.status === 400) break; // โมเดลใช้ไม่ได้ ข้ามไปตัวถัดไปเลย
         await sleep(700); // 503/429 ชั่วคราว รอแป๊บแล้วลองใหม่
@@ -83,7 +87,7 @@ export default async function handler(req, res) {
     }
 
     if (!apiRes || !apiRes.ok) {
-      return res.status(502).json({ error: `AI ตอบกลับผิดพลาด (${lastStatus})` });
+      return res.status(502).json({ error: `AI ตอบกลับผิดพลาด (${lastStatus}) ${lastMsg}` });
     }
 
     const d = await apiRes.json();
