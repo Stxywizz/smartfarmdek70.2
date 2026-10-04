@@ -51,25 +51,32 @@ export default async function handler(req, res) {
   }
 
   const system = SYSTEM + '\n\n' + ctxText(body.context);
-  const m = 'gemini-1.5-flash';
+  // ลองโมเดลตามลำดับ ถ้าตัวไหนโดนเลิกใช้ (404) จะข้ามไปตัวถัดไปอัตโนมัติ
+  // ตั้งค่าเองได้ที่ Vercel > Environment Variables > GEMINI_MODEL
+  const models = [process.env.GEMINI_MODEL, 'gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite'].filter(Boolean);
+  const payload = JSON.stringify({
+    systemInstruction: { parts: [{ text: system }] },
+    contents: msgs.map((x) => ({ role: x.role, parts: [{ text: x.content }] })),
+    generationConfig: { maxOutputTokens: 2048, temperature: 0.4 },
+  });
 
   try {
-    const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          { role: 'user', parts: [{ text: `[System Instruction]\n${system}` }] },
-          ...msgs.map((x) => ({ role: x.role === 'assistant' ? 'model' : 'user', parts: [{ text: x.content }] }))
-        ],
-        generationConfig: { maxOutputTokens: 1500, temperature: 0.4 },
-      }),
-    });
+    let apiRes = null;
+    let lastStatus = 0;
+    for (const m of models) {
+      apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
+        body: payload,
+      });
+      if (apiRes.ok) break;
+      lastStatus = apiRes.status;
+      console.error(`model ${m} failed (${apiRes.status}):`, await apiRes.text());
+      if (apiRes.status !== 404 && apiRes.status !== 400) break; // 404/400 = โมเดลใช้ไม่ได้ ลองตัวถัดไป
+    }
 
-    if (!apiRes.ok) {
-      const errText = await apiRes.text();
-      console.error(errText);
-      return res.status(502).json({ error: `AI ตอบกลับผิดพลาด (${apiRes.status})` });
+    if (!apiRes || !apiRes.ok) {
+      return res.status(502).json({ error: `AI ตอบกลับผิดพลาด (${lastStatus})` });
     }
 
     const d = await apiRes.json();
