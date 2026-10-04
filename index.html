@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06141c">
+<title>Smart Farm All-in-One</title>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{--bg:#06141c;--bg2:#0b2a36;--card:rgba(255,255,255,.06);--bd:rgba(255,255,255,.11);--tx:#e8f4f8;--mu:#8fb0bd;--ac:#2dd4bf;--ac2:#22d3ee;--ok:#4ade80;--wr:#fbbf24;--er:#f87171;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef6f6;--bg2:#d8eeee;--card:rgba(255,255,255,.8);--bd:rgba(0,60,70,.13);--tx:#0b2a33;--mu:#4c6d78;--ac:#0d9488;--ac2:#0891b2}}
+*{box-sizing:border-box;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:'Anuphan','Noto Sans Thai',system-ui,sans-serif;color:var(--tx);background:radial-gradient(900px 500px at 80% -10%,var(--bg2),transparent),var(--bg);background-attachment:fixed;min-height:100vh;line-height:1.55}
+.top{display:flex;align-items:center;gap:10px;padding:14px 18px}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:grid;place-items:center;font-size:20px}
+.top b{font-size:17px}.top small{display:block;color:var(--mu);font-size:11px;letter-spacing:.12em}
+.chip{margin-left:auto;font-size:12px;padding:5px 11px;border-radius:99px;border:1px solid var(--bd);background:var(--card);color:var(--mu)}
+.chip.live{color:var(--ok)}
+nav{position:fixed;z-index:9;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--bd);backdrop-filter:blur(14px)}
+nav button{flex:1;background:none;border:0;color:var(--mu);font:inherit;font-size:11px;padding:6px 2px;border-radius:12px;cursor:pointer}
+nav button span{display:block;font-size:20px}
+nav button.on{color:var(--ac);background:var(--card)}
+main{max-width:980px;margin:0 auto;padding:4px 16px 110px}
+.pg{display:none;animation:f .3s}.pg.on{display:block}
+@keyframes f{from{opacity:0;transform:translateY(6px)}}
+h2{font-size:22px;margin:8px 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:18px;margin-bottom:14px;backdrop-filter:blur(10px)}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.big{font-size:56px;font-weight:700;line-height:1;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.mu{color:var(--mu);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
+.tile{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px}
+.tile b{display:block;font-size:24px}.tile .mu{font-size:12px}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
+select,input{width:100%;font:inherit;font-size:16px;color:var(--tx);background:rgba(127,160,170,.12);border:1px solid var(--bd);border-radius:12px;padding:11px 12px}
+.btn{font:inherit;font-weight:600;border:0;border-radius:14px;padding:12px 18px;cursor:pointer;color:#042027;background:linear-gradient(135deg,var(--ac),var(--ac2));min-height:46px}
+.btn.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.adv{display:flex;gap:10px;padding:11px 13px;border-radius:14px;margin-top:8px;background:rgba(127,160,170,.1);border-left:4px solid var(--ok);font-size:14px}
+.adv.w{border-color:var(--wr)}.adv.e{border-color:var(--er)}
+.seg{display:flex;gap:6px;margin-bottom:12px}.seg button{flex:1}
+video{width:100%;max-height:50vh;border-radius:16px;background:#000;object-fit:cover}
+.res{font-size:34px;font-weight:700;color:var(--ac)}
+.bar{height:10px;border-radius:9px;background:rgba(127,160,170,.2);overflow:hidden;margin:4px 0 10px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.note{font-size:12px;color:var(--mu);margin-top:10px}
+a{color:var(--ac2)}
+.fc{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
+.fc>div{flex:0 0 86px;scroll-snap-align:start;text-align:center;background:rgba(127,160,170,.1);border-radius:16px;padding:12px 6px;font-size:13px;line-height:1.5}
+.fc i{font-style:normal;font-size:26px;display:block}
+.cr{font-size:11px;color:var(--mu);opacity:.7;margin:2px 4px 14px}
+.lyr{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}.lyr button{flex:1;padding:9px 6px;font-size:13px;min-height:40px}
+#mapbox{height:62vh;min-height:380px;border-radius:20px;border:1px solid var(--bd);overflow:hidden}
+.leaflet-container{font:inherit;background:var(--bg2)}
+.leaflet-control-attribution{font-size:10px!important;background:rgba(6,20,28,.6)!important;color:var(--mu)!important}
+.leaflet-control-attribution a{color:var(--mu)!important}
+.mk{width:44px;height:44px;border-radius:50%;background:rgba(6,20,28,.74);border:1px solid rgba(255,255,255,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;line-height:1.05;color:#fff;text-align:center}
+.mk i{font-style:normal;font-size:18px;display:block}
+.ct{display:grid;gap:10px}.ct a{display:flex;gap:12px;align-items:center;padding:13px;border-radius:14px;border:1px solid var(--bd);text-decoration:none;color:var(--tx);background:rgba(127,160,170,.08)}
+@media(min-width:768px){
+ nav{top:0;bottom:auto;right:auto;width:92px;flex-direction:column;justify-content:flex-start;gap:6px;padding:90px 8px 0;border-top:0;border-right:1px solid var(--bd)}
+ .top,main{margin-left:92px}
+ .grid{grid-template-columns:repeat(4,1fr)}
+ .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+}
+
+.mentor{margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
+.mentor small{display:block;color:var(--ac);font-size:11px;letter-spacing:.12em;margin-bottom:4px}
+.mentor b{display:block;font-size:15px}
+.mentor span{display:block;color:var(--mu);font-size:13px;margin-top:2px}
+
+#mapbox.dk .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.95) contrast(.9)}
+
+.ct h4{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ac);margin-top:6px;padding-top:14px;border-top:1px solid var(--bd)}
+.ct h4:first-child{margin-top:0;padding-top:0;border-top:0}
+
+:root{color-scheme:dark}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){color-scheme:light}}
+select{-webkit-appearance:none;appearance:none;padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%238fb0bd' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+select option{background:#0b2a36;color:#e8f4f8}
+.lay{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;padding:10px;border-radius:20px;background:var(--bg2);border:1px solid var(--bd)}
+.lay button{font:inherit;font-weight:600;font-size:15px;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px 8px;min-height:48px;cursor:pointer}
+.lay button.on{color:#042027;background:linear-gradient(135deg,var(--ac),var(--ac2));border-color:transparent}
+@media(min-width:768px){.lay{grid-template-columns:repeat(4,1fr)}}
+#mapbox{border:2px solid rgba(45,212,191,.45)}
+.mapwrap{display:grid;gap:12px;margin-bottom:6px}
+.side{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:14px}
+.side .lay{padding:0;background:none;border:0;margin-bottom:10px}
+#mapbox{height:clamp(300px,46vh,460px);min-height:0}
+@media(min-width:768px){.mapwrap{grid-template-columns:230px 1fr;align-items:start}.side .lay{grid-template-columns:1fr}#mapbox{height:clamp(420px,68vh,620px)}}
+.chat{display:flex;flex-direction:column;gap:10px;max-height:52vh;min-height:140px;overflow-y:auto;padding:2px 2px 8px}
+.b{max-width:88%;padding:10px 14px;border-radius:18px;white-space:pre-wrap;font-size:15px;line-height:1.55}
+.b.u{align-self:flex-end;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#042027;border-bottom-right-radius:6px}
+.b.a{align-self:flex-start;background:rgba(127,160,170,.14);border:1px solid var(--bd);border-bottom-left-radius:6px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 10px}
+.chips button{font:inherit;font-size:13px;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:99px;padding:7px 13px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="top"><div class="logo">🌱</div><div><b>Smart Farm</b><small>ALL-IN-ONE</small></div><div class="chip" id="src">กำลังโหลด…</div></div>
+<nav id="nav">
+ <button data-p="home" class="on"><span>🏠</span>หน้าหลัก</button>
+ <button data-p="map"><span>🗺</span>แผนที่</button>
+ <button data-p="water"><span>💧</span>น้ำ</button>
+ <button data-p="cam"><span>📷</span>กล้อง</button>
+ <button data-p="ai"><span>🤖</span>ผู้ช่วย</button>
+ <button data-p="about"><span>👤</span>ผู้จัดทำ</button>
+</nav>
+<main>
+<section class="pg on" id="home">
+ <div class="card hero"><div><div class="mu" id="loc">ตำแหน่งของคุณ</div><div class="big" id="t">--°</div><div class="mu" id="upd"></div></div>
+ <div style="min-width:200px"><label>พืชที่ปลูก</label><select id="plant"></select></div></div>
+ <div class="grid">
+  <div class="tile"><span class="mu">💦 ความชื้นอากาศ</span><b id="rh">--</b></div>
+  <div class="tile"><span class="mu">🌧 ฝนวันนี้</span><b id="rain">--</b></div>
+  <div class="tile"><span class="mu">🌬 ลม</span><b id="wind">--</b></div>
+  <div class="tile"><span class="mu">☀️ แสง (ประมาณ)</span><b id="lux">--</b></div>
+ </div>
+ <div class="card"><b>คำแนะนำวันนี้</b><div id="adv"></div><div class="note">คำแนะนำมาจากกฎ (rule-based) เทียบอากาศจริงกับเงื่อนไขของพืช ค่าเงื่อนไขเป็นค่าตั้งต้น ปรับได้ในโค้ด (PLANTS)</div></div>
+ <div class="card"><b>พยากรณ์ 7 วัน</b><div class="fc" id="fc" style="margin-top:10px"><span class="mu">กำลังโหลด…</span></div><div class="note">แถว: อุณหภูมิสูง/ต่ำ · โอกาสฝน · ฝนรวม (มม.) · ET₀ (มม./วัน) ใช้วางแผนรดน้ำล่วงหน้า</div></div>
+ <div class="cr">ที่มา: อากาศ พยากรณ์ และ ET₀ จาก Open-Meteo.com (CC BY 4.0) · แสง (lx) แปลงจากรังสีดวงอาทิตย์โดยประมาณ · ชื่อสถานที่ © OpenStreetMap contributors (Nominatim)</div>
+</section>
+
+<section class="pg" id="map">
+ <h2>แผนที่ภูมิอากาศ</h2>
+ <div class="mapwrap">
+  <div class="side">
+   <div class="mu" style="margin:0 2px 8px">เลือกข้อมูลที่จะแสดง</div>
+   <div class="lay"><button class="on" data-l="wind">🌬 ลม</button><button data-l="rh">💦 ความชื้น</button><button data-l="sun">☀️ แสง</button><button data-l="storm">⛈ พายุ/ฝน</button></div>
+   <div class="mu" id="legend"></div><div class="mu" id="mapst" style="margin-top:6px"></div>
+  </div>
+  <div id="mapbox"></div>
+ </div>
+ <div class="cr">ที่มา: ข้อมูลลม ความชื้น แสง พายุ จาก Open-Meteo.com (CC BY 4.0) · แผนที่ © OpenStreetMap contributors  · พายุประเมินจากรหัสสภาพอากาศของแบบจำลอง ไม่ใช่เรดาร์ · จุดข้อมูลเป็นกริดคร่าวๆ ของพื้นที่ที่เห็น</div>
+</section>
+
+<section class="pg" id="water">
+ <h2>คำนวณน้ำรายวัน (FAO-56)</h2>
+ <div class="two"><div class="card">
+  <label>พืช</label><select id="wp"></select>
+  <label>ระยะการเติบโต</label><select id="ws"><option value="0">ต้นกล้า</option><option value="1" selected>โตเต็มที่ / ออกผล</option><option value="2">ปลายฤดู</option></select>
+  <label>พื้นที่ปลูกต่อต้น (ตร.ม.)</label><input id="wa" type="number" inputmode="decimal" value="0.5" step="0.1">
+  <label>จำนวนต้น</label><input id="wn" type="number" inputmode="numeric" value="10">
+  <div class="row"><button class="btn" id="wgo">คำนวณ</button></div>
+ </div>
+ <div class="card"><div class="mu">ปริมาณน้ำที่ควรให้วันนี้</div><div class="res" id="wr">--</div><div class="mu" id="wd"></div>
+  <div class="note">ETc = Kc × ET₀ แล้วหักฝนที่ใช้ได้จริง 80% • ET₀ จาก Open-Meteo (Penman-Monteith) • ค่า Kc อ้างอิง FAO-56 ควรเทียบกับตารางเล่มจริงก่อนใส่ในรายงาน</div><div class="cr" style="margin:8px 0 0">ที่มา: ET₀ และฝน Open-Meteo.com · สมการ FAO Irrigation and Drainage Paper 56</div></div></div>
+ <div class="card"><b>ตรวจสอบความถูกต้องของสมการ ET₀</b><div class="mu" style="margin:4px 0 10px">คำนวณสมการ Penman-Monteith (FAO-56) เองจากข้อมูลอากาศ แล้วเทียบกับค่า ET₀ ที่ Open-Meteo ให้ 7 วันล่าสุด</div><button class="btn" id="vgo">เริ่มตรวจสอบ</button><div id="vres" style="margin-top:12px;overflow-x:auto"></div><div class="note">ผลต่างเล็กน้อยเกิดจากวิธีรวมข้อมูล (สมการรายวันเทียบกับ API ที่รวมรายชั่วโมง) ใช้เป็นหลักฐานพิสูจน์สมการในรายงานได้</div></div>
+</section>
+
+<section class="pg" id="cam">
+ <h2>วิเคราะห์ด้วยกล้อง</h2>
+ <div class="seg"><button class="btn" data-m="lux">วัดแสง</button><button class="btn g" data-m="leaf">ตรวจรอยบนใบ</button></div>
+ <div class="two"><div class="card"><video id="v" playsinline muted></video>
+  <div class="row"><button class="btn" id="cs">เปิดกล้อง</button><button class="btn g" id="ccap" hidden>ถ่าย/วิเคราะห์ใบ</button></div></div>
+ <div class="card" id="mlux"><div class="mu">ความสว่างภาพ (ค่าพิกเซล)</div><div class="res" id="lm">--</div>
+  <div class="mu">ค่าประมาณความเข้มแสง</div><div class="res" id="ll">ยังไม่ calibrate</div><div id="lv" class="mu"></div>
+  <label>Calibrate: ค่า Lux จากเครื่องวัดจริง</label><input id="lr" type="number" inputmode="decimal" placeholder="เช่น 32000">
+  <div class="row"><button class="btn" id="lref">ใช้แสงอ้างอิงจากข้อมูลรังสี</button><button class="btn g" id="lp">บันทึกจุดเทียบเอง</button><button class="btn g" id="lc">ล้างจุด</button></div>
+  <div class="note" id="lx"></div><div class="note">ไม่มี Lux meter: วางกระดาษขาวราบกลางแจ้ง เปิดกล้องส่องกระดาษ แล้วกด "ใช้แสงอ้างอิง" หลายช่วงเวลา (เช้า สาย เที่ยง บ่าย) ระบบใช้รังสีดวงอาทิตย์จาก Open-Meteo × 115 lx/(W/m²) เป็นค่าอ้างอิง ใช้ได้เฉพาะกลางแจ้งท้องฟ้าเปิด</div><div class="note" id="lf">ต้องมีอย่างน้อย 2 จุด • กล้องมี auto-exposure ค่าเป็นค่าประมาณเท่านั้น</div></div>
+ <div class="card" id="mleaf" hidden><b>ผลการวัดรอยบนใบ</b><label>หรือเลือกรูปใบจากเครื่อง</label><input id="lfile" type="file" accept="image/*">
+  <div class="mu" style="margin-top:8px">รอยดำ <span id="pd">--</span>%</div><div class="bar"><i id="bd" style="width:0"></i></div>
+  <div class="mu">รอยขาว <span id="pw">--</span>%</div><div class="bar"><i id="bw" style="width:0"></i></div>
+  <label>เช็ดรอยด้วยนิ้วแล้วหลุดไหม</label><select id="q1"><option value="">ยังไม่ได้ลอง</option><option value="y">หลุด</option><option value="n">ไม่หลุด</option></select>
+  <label>ใต้ใบมีแมลงเล็กๆ ไหม</label><select id="q2"><option value="">ไม่แน่ใจ</option><option value="y">มี</option><option value="n">ไม่มี</option></select>
+  <button class="btn" id="qgo" style="margin-top:12px">ประเมินความเป็นไปได้</button><div id="cz"></div>
+  <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)"><b>บันทึกผลทดสอบ (สำหรับรายงาน)</b><label>เฉลยสาเหตุจริง (จากแหล่งที่ยืนยันแล้ว)</label><select id="tt"></select>
+  <div class="row"><button class="btn g" id="tsv">บันทึกผล</button><button class="btn g" id="tcsv">ดาวน์โหลด CSV</button><button class="btn g" id="tclr">ล้าง</button></div><div class="note" id="tst"></div></div>
+  <div class="note">วางใบบนพื้นหลังเทา/น้ำเงิน ถ่ายในที่แสงสม่ำเสมอ • เป็นการประเมินเบื้องต้น ไม่ใช่การวินิจฉัย หากรุนแรงให้ปรึกษาเกษตรอำเภอ</div></div></div>
+ <canvas id="cv" hidden></canvas>
+</section>
+
+<section class="pg" id="ai">
+ <h2>ผู้ช่วย AI เรื่องพืช</h2>
+ <div class="card">
+  <div class="chat" id="chat"><div class="b a">สวัสดีครับ ผมช่วยตอบเรื่องการปลูกพืชได้ และเห็นอากาศ พืชที่คุณเลือก กับผลตรวจใบล่าสุดของคุณด้วย ลองถามได้เลยครับ</div></div>
+  <div class="chips" id="chips"><button>วันนี้ควรรดน้ำไหม</button><button>ใบเป็นจุดดำเกิดจากอะไร</button><button>มือใหม่ควรปลูกอะไรดี</button></div>
+  <div class="row" style="flex-wrap:nowrap"><input id="cin" placeholder="พิมพ์คำถามเรื่องพืช…" maxlength="500" style="flex:1;min-width:0"><button class="btn g" id="mic" title="พูดคำถาม">🎤</button><button class="btn" id="csend">ส่ง</button></div>
+  <div class="note">ตอบเฉพาะเรื่องพืชและการเกษตร อาจผิดพลาดได้ เรื่องสำคัญ (โรคระบาด สารเคมี) ควรสอบถามเกษตรอำเภอ • ข้อมูลอากาศและผลตรวจใบของคุณจะถูกส่งไปประกอบคำตอบ</div>
+ </div>
+</section>
+
+<section class="pg" id="about">
+ <h2>ผู้จัดทำ & ติดต่อ</h2>
+ <div class="two"><div class="card"><b>Smart Farm All-in-One</b>
+  <p class="mu" style="margin-top:6px">เว็บแอปช่วยคนเริ่มปลูกพืช ใช้ข้อมูลอากาศจริง ข้อมูลมาตรฐาน และใช้กล้องมือถือ</p>
+  <p style="margin-top:12px"><b>ผู้จัดทำ</b></p>
+  <p>1. นายประพล ป๋อมตรี</p>
+  <p class="mu">บทบาท: ออกแบบ UI / เขียนโปรแกรม / วิเคราะห์ข้อมูล</p>
+  <p style="margin-top:8px">2. นายธฤษวัณ เพ็ชรผ่อง</p>
+  <p class="mu">บทบาท: เขียนโปรแกรม / ทดสอบการทำงาน</p>
+<div class="mentor">
+  <small>โรงเรียน</small>
+  <b>โรงเรียนสวนกุหลาบวิทยาลัย รังสิต</b>
+  <span>ชั้นมัธยมศึกษาปีที่ 6</span>
+</div>
+<div class="mentor">
+  <small>ที่ปรึกษา</small>
+  <b>นายธีรวงศ์ ปวิชพงศ์กุล</b>
+  <span>นักศึกษาคณะวิศวกรรมศาสตร์</span>
+  <span>สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</span>
+</div>
+</div>
+ <div class="card"><div class="ct">
+  <h4>👤 คนที่ 1 · นายประพล ป๋อมตรี</h4>
+  <a href="mailto:ohmzazaza01@gmail.com">✉️ ohmzazaza01@gmail.com</a>
+<a href="https://line.me/ti/p/~0965681972">💬 LINE: 0965681972</a>
+  <a href="https://instagram.com/_ppo.zx">📸 Instagram: _ppo.zx</a>
+  <h4>👤 คนที่ 2 · นายธฤษวัณ เพ็ชรผ่อง</h4>
+  <a href="mailto:atthisawin24@gmail.com">✉️ atthisawin24@gmail.com</a>
+  <a href="https://line.me/ti/p/~atomic2412">💬 LINE: atomic2412</a>
+  <a href="https://www.instagram.com/tzawinn">📸 Instagram: tzawinn</a>
+</div></div></div>
+ <div class="card"><b>สรุปผลทดสอบของระบบ</b><div id="sum" style="margin-top:6px"></div><div class="note">แคปหน้านี้ใส่รายงานได้ ตัวเลขมาจากการทดสอบบนเครื่องนี้</div></div>
+ <div class="card"><b>แหล่งข้อมูล & ข้อจำกัด</b>
+  <p class="note">• อากาศ แผนที่ลม/ความชื้น/แสง/พายุ: Open-Meteo.com (CC BY 4.0) เป็นข้อมูลแบบจำลองระดับพื้นที่ ไม่ใช่ค่าวัดตรงแปลง • สมการน้ำ: FAO Irrigation and Drainage Paper 56 • แผนที่และชื่อสถานที่: © OpenStreetMap contributors (Nominatim) • ผู้ช่วย AI: โมเดลภาษาของ Anthropic หรือ Google ผ่านเซิร์ฟเวอร์ของโครงงาน • ไลบรารีแผนที่: Leaflet • ฟอนต์: Anuphan (Google Fonts, OFL) • ค่าแสงจากกล้องเป็นค่าประมาณหลัง calibrate • ผลตรวจใบเป็นความเป็นไปได้ ไม่ใช่การฟันธง</p></div>
+</section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+const $=i=>document.getElementById(i);
+const PLANTS={chili:{n:'พริก',kc:[.6,1.05,.9],tmax:35,lux:25000},tomato:{n:'มะเขือเทศ',kc:[.6,1.15,.8],tmax:34,lux:30000},basil:{n:'กะเพรา',kc:[.5,1.1,.8],tmax:36,lux:20000}};
+const LUX_PER_WM2=115;
+let W=null,pts=[],fit=null,FI=null,ETM=null;
+try{pts=JSON.parse(localStorage.getItem('pts')||'[]')}catch(e){}
+['plant','wp'].forEach(id=>{$(id).innerHTML=Object.entries(PLANTS).map(([k,p])=>`<option value="${k}">${p.n}</option>`).join('')});
+$('plant').onchange=()=>{$('wp').value=$('plant').value;advice()};
+
+// navigation
+function go(p){document.querySelectorAll('.pg').forEach(s=>s.classList.toggle('on',s.id===p));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));scrollTo(0,0);if(p==="map")initMap();if(p==="about")summ()}
+$('nav').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.p)};
+
+// weather
+let POS=[13.75,100.5];
+async function load(la,lo,named){POS=[la,lo];forecast(la,lo);place(la,lo);
+ try{
+  const u=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,shortwave_radiation&daily=et0_fao_evapotranspiration,precipitation_sum&past_days=3&forecast_days=1&timezone=auto`;
+  const r=await fetch(u);if(!r.ok)throw 0;const d=await r.json(),c=d.current,dl=d.daily,n=dl.time.length-1;
+  W={t:c.temperature_2m,rh:c.relative_humidity_2m,rain:dl.precipitation_sum[n]||0,wind:c.wind_speed_10m,rad:c.shortwave_radiation,et0:dl.et0_fao_evapotranspiration[n],rain3:dl.precipitation_sum.reduce((a,b)=>a+(b||0),0),live:true,time:c.time};
+ }catch(e){
+  W={t:33.5,rh:58,rain:0,wind:9,rad:620,et0:5.1,rain3:2,live:false,time:'ตัวอย่าง'};
+ }
+ render(named);
+}
+function render(){
+ $('src').textContent=W.live?'● ข้อมูลจริง Open-Meteo':'ข้อมูลตัวอย่าง (ออฟไลน์)';$('src').className='chip'+(W.live?' live':'');
+ $('t').textContent=Math.round(W.t)+'°C';$('rh').textContent=Math.round(W.rh)+'%';$('rain').textContent=W.rain.toFixed(1)+' มม.';
+ $('wind').textContent=Math.round(W.wind)+' กม./ชม.';$('lux').textContent=Math.round(W.rad*LUX_PER_WM2).toLocaleString()+' lx';
+ $('upd').textContent='อัปเดต '+W.time.replace('T',' ');advice();
+}
+function advice(){
+ if(!W)return;const p=PLANTS[$('plant').value],a=[],lx=W.rad*LUX_PER_WM2;
+ if(W.t>=p.tmax&&W.rh<50)a.push(['e','🔥','ร้อนและแห้งเกินไป ควรพรางแสงหรือเพิ่มการให้น้ำ']);
+ else if(W.t>=p.tmax)a.push(['w','🌡','อุณหภูมิสูงกว่าที่'+p.n+'ชอบ ระวังต้นเครียดช่วงบ่าย']);
+ if(W.rain>=10)a.push(['w','🌧','ฝนตกมากวันนี้ งดรดน้ำ และตรวจการระบายน้ำ']);
+ if(W.rh>85)a.push(['w','🍄','ความชื้นสูง เสี่ยงโรคเชื้อรา เว้นระยะต้นให้ลมผ่าน']);
+ if(W.rad>50&&lx<p.lux*.5)a.push(['w','☁️','แสงตอนนี้ต่ำกว่าที่'+p.n+'ต้องการ (ดูซ้ำช่วงเที่ยง)']);
+ if(!a.length)a.push(['','✅','สภาพอากาศเหมาะสม ดูแลตามปกติ']);
+ $('adv').innerHTML=a.map(x=>`<div class="adv ${x[0]}"><span>${x[1]}</span><span>${x[2]}</span></div>`).join('');
+}
+function locate(){
+ if(!navigator.geolocation)return load(13.75,100.5);
+ navigator.geolocation.getCurrentPosition(p=>{$('loc').textContent=`📍 ${p.coords.latitude.toFixed(2)}, ${p.coords.longitude.toFixed(2)}`;load(p.coords.latitude,p.coords.longitude)},()=>{$('loc').textContent='📍 กรุงเทพฯ (ค่าเริ่มต้น)';$('loc').dataset.def='1';load(13.75,100.5)},{timeout:8000});
+}
+
+// water
+$('wgo').onclick=()=>{
+ if(!W)return;const p=PLANTS[$('wp').value],kc=p.kc[+$('ws').value],etc=kc*W.et0,net=Math.max(0,etc-.8*W.rain),a=+$('wa').value||0,n=+$('wn').value||0,l=net*a;
+ $('wr').textContent=l.toFixed(1)+' ลิตร/ต้น';
+ $('wd').innerHTML=`รวม ${(l*n).toFixed(0)} ลิตร • ET₀ ${W.et0.toFixed(2)} มม. × Kc ${kc} = ETc ${etc.toFixed(2)} มม./วัน • ฝนหัก ${(.8*W.rain).toFixed(1)} มม.`;
+};
+
+// camera
+let stream=null,mode='lux',loop=null;
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('g',x!==b));$('mlux').hidden=mode!=='lux';$('mleaf').hidden=mode!=='leaf';$('ccap').hidden=mode!=='leaf'});
+$('cs').onclick=async()=>{
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});$('v').srcObject=stream;await $('v').play();$('cs').textContent='กล้องเปิดอยู่';lockExp();clearInterval(loop);loop=setInterval(measure,400)}
+ catch(e){alert('เปิดกล้องไม่ได้ ต้องใช้ผ่าน HTTPS และอนุญาตกล้อง')}
+};
+function frame(w,h){const c=$('cv');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage($('v'),0,0,w,h);return x.getImageData(0,0,w,h).data}
+function measure(){
+ if(mode!=='lux'||!$('v').videoWidth)return;
+ const w=64,h=48,d=frame(w,h);let s=0,n=0;
+ for(let y=12;y<36;y++)for(let x=16;x<48;x++){const i=(y*w+x)*4;s+=.2126*d[i]+.7152*d[i+1]+.0722*d[i+2];n++}
+ const L=s/n;$('lm').textContent=L.toFixed(1)+' / 255';$('lm').dataset.v=L;
+ if(fit){const lx=Math.max(0,fit.a*L+fit.b);$('ll').textContent='≈ '+Math.round(lx).toLocaleString()+' lx'+(fit.r2<.7?' (ความแม่นต่ำ)':'');
+  const p=PLANTS[$('plant').value];$('lv').textContent=lx<p.lux*.5?'น้อยสำหรับ'+p.n:lx<=p.lux*3?'พอดีสำหรับ'+p.n:'มาก (ระวังใบไหม้ถ้าร้อนจัด)'}
+}
+function refit(){
+ try{localStorage.setItem('pts',JSON.stringify(pts))}catch(e){}
+ if(pts.length<2){fit=null;$('lf').textContent=`มี ${pts.length} จุด ต้องอย่างน้อย 2 จุด • กล้องมี auto-exposure ค่าเป็นค่าประมาณเท่านั้น`;return}
+ const n=pts.length,sx=pts.reduce((a,p)=>a+p[0],0),sy=pts.reduce((a,p)=>a+p[1],0),sxx=pts.reduce((a,p)=>a+p[0]**2,0),sxy=pts.reduce((a,p)=>a+p[0]*p[1],0);
+ const den=n*sxx-sx*sx;if(!den){fit=null;return}
+ const a=(n*sxy-sx*sy)/den,b=(sy-a*sx)/n,m=sy/n,ssr=pts.reduce((t,p)=>t+(p[1]-(a*p[0]+b))**2,0),sst=pts.reduce((t,p)=>t+(p[1]-m)**2,0);
+ fit={a,b,r2:sst?1-ssr/sst:0};FI={n:n,r2:fit.r2,rmse:Math.sqrt(ssr/n)};$('lf').textContent=`สมการ: Lux = ${a.toFixed(1)}×ความสว่าง + ${b.toFixed(0)} • R² = ${sst?(1-ssr/sst).toFixed(3):'-'} • คลาดเคลื่อน (RMSE) ±${Math.round(Math.sqrt(ssr/n)).toLocaleString()} lx • ${n} จุด`;
+}
+$('lp').onclick=()=>{const L=+$('lm').dataset.v,r=+$('lr').value;if(!L||!r)return alert('เปิดกล้องและกรอกค่า Lux ก่อน');pts.push([L,r]);refit()};
+$('lc').onclick=()=>{pts=[];refit();$('ll').textContent='ยังไม่ calibrate';$('lv').textContent=''};
+refit();
+
+// leaf spots
+let cover=null;
+function rgb2hsv(r,g,b){r/=255;g/=255;b/=255;const m=Math.max(r,g,b),n=Math.min(r,g,b),d=m-n;let h=0;if(d){h=m===r?((g-b)/d)%6:m===g?(b-r)/d+2:(r-g)/d+4;h*=60;if(h<0)h+=360}return[h,m?d/m:0,m]}
+function analyze(d){
+ let G=0,D=0,Wt=0;
+ for(let i=0;i<d.length;i+=4){const[hh,s,v]=rgb2hsv(d[i],d[i+1],d[i+2]);
+  if(v<.22)D++;else if(s<.14&&v>.78)Wt++;else if(hh>60&&hh<170&&s>.2)G++}
+ const T=G+D+Wt||1;cover={d:D/T*100,w:Wt/T*100};LR=null;
+ $('pd').textContent=cover.d.toFixed(1);$('pw').textContent=cover.w.toFixed(1);$('bd').style.width=Math.min(100,cover.d*3)+'%';$('bw').style.width=Math.min(100,cover.w*3)+'%';$('cz').innerHTML='';
+}
+$('ccap').onclick=()=>{if(!$('v').videoWidth)return alert('เปิดกล้องก่อน');analyze(frame(160,120))};
+$('lfile').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=$('cv');c.width=160;c.height=120;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,160,120);analyze(x.getImageData(0,0,160,120).data);URL.revokeObjectURL(im.src)};im.src=URL.createObjectURL(f)};
+$('qgo').onclick=()=>{
+ if(!cover||!W)return alert('ถ่ายใบก่อน');
+ if(cover.d<1&&cover.w<1){$('cz').innerHTML='<div class="adv"><span>✅</span><span>ไม่พบรอยผิดปกติชัดเจนในภาพนี้</span></div>';return}
+ const q1=$('q1').value,q2=$('q2').value,wet=W.rh>75||W.rain3>10,hot=W.t>=35,answered=(q1?1:0)+(q2?1:0);let c;
+ if(cover.w>cover.d)c={'ราแป้ง (Powdery mildew)':1+(W.rh>70?1:0)+(q1==='n'?1:0),'คราบน้ำ/แร่ธาตุ/ปุ๋ย':1+(q1==='y'?1.5:0)+(W.rain3<1?.5:0),'ใบไหม้แดด':.8+(hot?1:0)+(W.rh<50?.5:0),'แมลง/ไรกัดกิน':.6+(q2==='y'?2:0)};
+ else c={'โรคใบจุดจากเชื้อรา':1+(wet?1.5:0)+(q1==='n'?1:0),'ราดำจากเพลี้ย/แมลงน้ำหวาน':.5+(q2==='y'?2:0)+(q1==='y'?1.5:0),'ใบไหม้ (แดด/ขาดน้ำ/ปุ๋ยเกิน)':.8+(hot?1:0)+(W.rh<50?.5:0)};
+ const tot=Object.values(c).reduce((a,b)=>a+b,0),r=Object.entries(c).map(([k,v])=>[k,v/tot*100]).sort((a,b)=>b[1]-a[1]),gap=(r[0][1]-r[1][1])/100;
+ const conf=answered<2||gap<.1?'ยังสรุปไม่ได้':gap>.25?'สูง':'กลาง';
+ LR=r;$('cz').innerHTML=r.map(x=>`<div class="mu" style="margin-top:8px">${x[0]} — ${x[1].toFixed(0)}%</div><div class="bar"><i style="width:${x[1]}%"></i></div>`).join('')+`<div class="adv ${conf==='สูง'?'':'w'}"><span>🎯</span><span>ระดับความมั่นใจ: <b>${conf}</b> (ตอบคำถามครบ ${answered}/2)</span></div>`;
+};
+// exposure lock + light reference
+async function lockExp(){
+ try{const t=stream.getVideoTracks()[0],c=t.getCapabilities?t.getCapabilities():{};
+  if(c.exposureMode&&c.exposureMode.includes('manual')){await t.applyConstraints({advanced:[{exposureMode:'manual'}]});$('lx').textContent='🔒 ล็อกค่าแสงกล้องแล้ว (ควรเปิดกล้องกลางแจ้งตอนแสงปานกลาง)'}
+  else $('lx').textContent='เครื่องนี้ล็อกค่าแสงกล้องไม่ได้ ค่าจะคลาดเคลื่อนมากกว่า'}
+ catch(e){$('lx').textContent='ล็อกค่าแสงกล้องไม่ได้'}
+}
+$('lref').onclick=()=>{
+ const L=+$('lm').dataset.v;if(!L)return alert('เปิดกล้องก่อน');
+ if(!W||!W.live)return alert('ต้องมีข้อมูลอากาศจริง (ออนไลน์)');
+ if(W.rad<150)return alert('แสงน้อยเกินไปสำหรับใช้รังสีเป็นอ้างอิง ใช้ตอนกลางวันกลางแจ้ง');
+ pts.push([L,W.rad*LUX_PER_WM2]);refit();
+};
+// leaf test log
+const CAUSES=['ราแป้ง (Powdery mildew)','คราบน้ำ/แร่ธาตุ/ปุ๋ย','ใบไหม้แดด','แมลง/ไรกัดกิน','โรคใบจุดจากเชื้อรา','ราดำจากเพลี้ย/แมลงน้ำหวาน','ใบไหม้ (แดด/ขาดน้ำ/ปุ๋ยเกิน)'];
+$('tt').innerHTML=CAUSES.map(x=>`<option>${x}</option>`).join('');
+let LR=null,TL=[];try{TL=JSON.parse(localStorage.getItem('tl')||'[]')}catch(e){}
+function tstat(){const n=TL.length;if(!n){$('tst').textContent='ยังไม่มีผลทดสอบ';return}
+ const a=TL.filter(x=>x.truth===x.top[0]).length,b=TL.filter(x=>x.top.includes(x.truth)).length;
+ $('tst').textContent=`ทดสอบแล้ว ${n} รูป • ถูกอันดับ 1: ${(a/n*100).toFixed(0)}% • อยู่ใน 3 อันดับแรก: ${(b/n*100).toFixed(0)}%`}
+$('tsv').onclick=()=>{if(!LR)return alert('กด "ประเมินความเป็นไปได้" ก่อน');TL.push({truth:$('tt').value,top:LR.slice(0,3).map(x=>x[0]),d:cover.d,w:cover.w});try{localStorage.setItem('tl',JSON.stringify(TL))}catch(e){}tstat()};
+$('tclr').onclick=()=>{TL=[];try{localStorage.removeItem('tl')}catch(e){}tstat()};
+$('tcsv').onclick=()=>{if(!TL.length)return;
+ const t='\ufeffเฉลย,อันดับ1,อันดับ2,อันดับ3,รอยดำ%,รอยขาว%\n'+TL.map(x=>[x.truth,...x.top,x.d.toFixed(1),x.w.toFixed(1)].map(v=>`"${v}"`).join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='leaf_test.csv';a.click()};
+tstat();
+function summ(){
+ const L=[],n=TL.length;
+ L.push(ETM?`📐 สมการ ET₀: คลาดเคลื่อนเฉลี่ย ${ETM.mape.toFixed(1)}% (${ETM.n} วัน)`:'📐 สมการ ET₀: ยังไม่ได้ตรวจ (ไปหน้า "น้ำ")');
+ L.push(FI?`💡 วัดแสง: ${FI.n} จุดเทียบ • R² ${FI.r2.toFixed(2)} • RMSE ±${Math.round(FI.rmse).toLocaleString()} lx`:'💡 วัดแสง: ยังไม่ได้ calibrate (ไปหน้า "กล้อง")');
+ L.push(n?`🍃 ตรวจใบ: ${n} รูป • ถูกอันดับ 1 ${(TL.filter(x=>x.truth===x.top[0]).length/n*100).toFixed(0)}% • ใน 3 อันดับ ${(TL.filter(x=>x.top.includes(x.truth)).length/n*100).toFixed(0)}%`:'🍃 ตรวจใบ: ยังไม่มีผลทดสอบ (ไปหน้า "กล้อง")');
+ $('sum').innerHTML=L.map(x=>`<div class="adv">${x}</div>`).join('');
+}
+// ET0 validation (FAO-56 Penman-Monteith, daily form)
+const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+function pm(la,z,day,tx,tn,rh,u10,rs){
+ const e0=T=>.6108*Math.exp(17.27*T/(T+237.3)),tm=(tx+tn)/2,P=101.3*Math.pow((293-.0065*z)/293,5.26),g=.000665*P,
+ D=4098*e0(tm)/Math.pow(tm+237.3,2),es=(e0(tx)+e0(tn))/2,ea=rh/100*es,u2=u10*.748,
+ dt=new Date(day+'T12:00'),J=Math.floor((dt-new Date(dt.getFullYear(),0,0))/864e5),
+ f=la*Math.PI/180,dr=1+.033*Math.cos(2*Math.PI*J/365),dl=.409*Math.sin(2*Math.PI*J/365-1.39),
+ sw=Math.acos(Math.max(-1,Math.min(1,-Math.tan(f)*Math.tan(dl)))),
+ Ra=24*60/Math.PI*.082*dr*(sw*Math.sin(f)*Math.sin(dl)+Math.cos(f)*Math.cos(dl)*Math.sin(sw)),
+ Rso=(.75+2e-5*z)*Ra,
+ rn=.77*rs-4.903e-9*(Math.pow(tx+273.16,4)+Math.pow(tn+273.16,4))/2*(.34-.14*Math.sqrt(ea))*(1.35*Math.min(1,rs/Rso)-.35);
+ return(.408*D*rn+g*900/(tm+273)*u2*(es-ea))/(D+g*(1+.34*u2));
+}
+$('vgo').onclick=async()=>{
+ const o=$('vres');o.textContent='กำลังคำนวณ…';
+ try{
+  const la=POS[0],lo=POS[1];
+  const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,shortwave_radiation&daily=et0_fao_evapotranspiration&wind_speed_unit=ms&past_days=6&forecast_days=1&timezone=auto`);
+  if(!r.ok)throw 0;const d=await r.json(),H=d.hourly,z=d.elevation||0,rows=[];
+  d.daily.time.forEach((day,k)=>{
+   const ix=H.time.map((t,i)=>t.startsWith(day)?i:-1).filter(i=>i>=0),T=ix.map(i=>H.temperature_2m[i]);
+   rows.push([day,pm(la,z,day,Math.max(...T),Math.min(...T),avg(ix.map(i=>H.relative_humidity_2m[i])),avg(ix.map(i=>H.wind_speed_10m[i])),ix.reduce((a,i)=>a+H.shortwave_radiation[i],0)*.0036),d.daily.et0_fao_evapotranspiration[k]]);
+  });
+  const e=rows.map(x=>Math.abs(x[1]-x[2])/Math.max(x[2],.1)*100);ETM={mape:avg(e),n:rows.length};
+  o.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:13px"><tr><th align="left">วันที่</th><th>คำนวณเอง</th><th>API</th><th>ต่าง</th></tr>'+rows.map((x,i)=>`<tr><td>${x[0].slice(5)}</td><td align="center">${x[1].toFixed(2)}</td><td align="center">${x[2].toFixed(2)}</td><td align="center">${e[i].toFixed(0)}%</td></tr>`).join('')+'</table><div class="adv"><span>📐</span><span>คลาดเคลื่อนเฉลี่ย (MAPE) <b>'+avg(e).toFixed(1)+'%</b> ใน '+rows.length+' วัน (หน่วย มม./วัน)</span></div>';
+ }catch(err){o.textContent='คำนวณไม่ได้ (ต้องต่ออินเทอร์เน็ต)'}
+};
+// place name (reverse geocoding, OpenStreetMap Nominatim)
+async function place(la,lo){
+ const k='pl'+la.toFixed(2)+','+lo.toFixed(2);let n=null;
+ try{n=localStorage.getItem(k)}catch(e){}
+ if(!n){try{
+  const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${la}&lon=${lo}&zoom=14&accept-language=th`);
+  if(!r.ok)throw 0;const a=(await r.json()).address||{};
+  n=[...new Set([a.suburb||a.village||a.town||a.neighbourhood,a.city_district||a.county||a.city,a.state||a.province].filter(Boolean))].join(' · ');
+  if(n)try{localStorage.setItem(k,n)}catch(e){}
+ }catch(e){}}
+ if(n)$('loc').textContent='📍 '+n+($('loc').dataset.def?' (ค่าเริ่มต้น)':'');
+}
+// AI assistant (เรียก /api/chat ซึ่งเป็น Netlify Function)
+const AI_URL='/api/chat';let CH=[],busy=false;
+function bub(t,c){const d=document.createElement('div');d.className='b '+c;d.textContent=t;$('chat').appendChild(d);$('chat').scrollTop=1e6;return d}
+function aiCtx(){
+ const c={plant:PLANTS[$('plant').value].n,place:$('loc').textContent.replace('📍 ','')};
+ if(W)Object.assign(c,{t:W.t,rh:W.rh,rain:W.rain,rain3:W.rain3,wind:W.wind,rad:W.rad,et0:W.et0,live:W.live});
+ if(LR&&cover)c.leaf={d:cover.d,w:cover.w,top:LR.slice(0,3).map(x=>[x[0],Math.round(x[1])])};
+ return c;
+}
+async function ask(q){
+ q=q.trim();if(busy||!q)return;busy=true;$('csend').disabled=true;
+ bub(q,'u');$('cin').value='';CH.push({role:'user',content:q});
+ const w=bub('กำลังคิด…','a');
+ try{
+  const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:CH.slice(-8),context:aiCtx()})});
+  if(r.status===404)throw new Error('ยังไม่ได้ตั้งค่าเซิร์ฟเวอร์ AI');
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
+  w.textContent=d.reply;CH.push({role:'assistant',content:d.reply});
+ }catch(e){w.textContent='ขออภัย ใช้ผู้ช่วยไม่ได้ตอนนี้ ('+e.message+')';CH.pop()}
+ busy=false;$('csend').disabled=false;
+}
+$('csend').onclick=()=>ask($('cin').value);
+$('cin').onkeydown=e=>{if(e.key==='Enter')ask($('cin').value)};
+$('chips').onclick=e=>{if(e.target.tagName==='BUTTON')ask(e.target.textContent)};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR)$('mic').hidden=true;else $('mic').onclick=()=>{const r=new SR();r.lang='th-TH';r.onresult=e=>{$('cin').value=e.results[0][0].transcript};r.start()};
+// 7-day forecast
+const WX=c=>c>=95?'⛈':c>=80?'🌦':c>=61?'🌧':c>=51?'🌦':c>=45?'🌫':c>=3?'☁️':c>=1?'⛅':'☀️';
+async function forecast(la,lo){
+ try{
+  const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,et0_fao_evapotranspiration&forecast_days=7&timezone=auto`);
+  if(!r.ok)throw 0;const d=(await r.json()).daily;
+  $('fc').innerHTML=d.time.map((t,i)=>`<div><span class="mu">${new Date(t+'T12:00').toLocaleDateString('th-TH',{weekday:'short'})}</span><i>${WX(d.weather_code[i])}</i><b>${Math.round(d.temperature_2m_max[i])}°<span class="mu">/${Math.round(d.temperature_2m_min[i])}°</span></b><span class="mu">🌧 ${d.precipitation_probability_max[i]??'-'}%</span><br><span class="mu">${d.precipitation_sum[i].toFixed(1)} มม.</span><br><span class="mu">ET₀ ${d.et0_fao_evapotranspiration[i].toFixed(1)}</span></div>`).join('');
+ }catch(e){$('fc').innerHTML='<span class="mu">โหลดพยากรณ์ไม่ได้ (ต้องต่ออินเทอร์เน็ต)</span>'}
+}
+// climate map
+let M=null,MG=null,GR=[],LY='wind',tm=null;
+const LG={wind:'ลูกศรชี้ไปทางที่ลมพัดไป · ตัวเลข = กม./ชม. (เขียวเบา เหลืองปานกลาง แดงแรง)',rh:'ตัวเลข = ความชื้นสัมพัทธ์ % (ส้มแห้ง ฟ้าชื้น)',sun:'ตัวเลข = ความเข้มแสงประมาณ (พัน lx) จากรังสีดวงอาทิตย์',storm:'⛈ พายุฝนฟ้าคะนอง · 🌧 ฝน (มม./ชม.) · ตัวเลข % = ปริมาณเมฆเมื่อไม่มีฝน'};
+function initMap(){
+ if(!window.L){$('mapst').textContent='โหลดแผนที่ไม่ได้ (ต้องต่ออินเทอร์เน็ต)';return}
+ if(!M){
+  M=L.map('mapbox').setView(POS,7);
+  const dk=!matchMedia('(prefers-color-scheme: light)').matches;
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{minZoom:4,maxZoom:11,attribution:'© OpenStreetMap contributors · Open-Meteo'}).addTo(M);
+if(dk)$('mapbox').classList.add('dk');  MG=L.layerGroup().addTo(M);
+  M.on('moveend',()=>{clearTimeout(tm);tm=setTimeout(grid,900)});
+  document.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{LY=b.dataset.l;document.querySelectorAll('[data-l]').forEach(x=>x.classList.toggle('on',x===b));draw()});
+ }
+ setTimeout(()=>{M.invalidateSize();if(!GR.length)grid()},150);
+}
+async function grid(){
+ const b=M.getBounds(),n=6,la=[],lo=[];
+ if(b.getNorth()-b.getSouth()>12){GR=[];draw();$('mapst').textContent='ซูมเข้าอีกนิดเพื่อแสดงข้อมูล';return}
+ for(let i=0;i<n;i++)for(let j=0;j<n;j++){la.push((b.getSouth()+(b.getNorth()-b.getSouth())*(i+.5)/n).toFixed(2));lo.push((b.getWest()+(b.getEast()-b.getWest())*(j+.5)/n).toFixed(2))}
+ $('mapst').textContent='กำลังโหลด…';
+ try{
+  const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=relative_humidity_2m,precipitation,wind_speed_10m,wind_direction_10m,shortwave_radiation,weather_code,cloud_cover&timezone=auto`);
+  if(!r.ok)throw 0;let d=await r.json();if(!Array.isArray(d))d=[d];
+  GR=d.map(x=>({la:x.latitude,lo:x.longitude,...x.current}));draw();
+ }catch(e){$('mapst').textContent='โหลดข้อมูลไม่ได้ (เช็กอินเทอร์เน็ตแล้วลองเลื่อนแผนที่อีกครั้ง)'}
+}
+function draw(){
+ if(!MG)return;MG.clearLayers();let st=0;
+ GR.forEach(p=>{
+  const ws=Math.round(p.wind_speed_10m),code=p.weather_code,storm=code>=95,lx=Math.round(p.shortwave_radiation*LUX_PER_WM2);if(storm)st++;let h;
+  if(LY==='wind')h=`<i style="transform:rotate(${p.wind_direction_10m+180}deg);color:${ws>30?'#f87171':ws>15?'#fbbf24':'#2dd4bf'}">↑</i>${ws}`;
+  else if(LY==='rh')h=`<span style="color:hsl(${40+p.relative_humidity_2m*1.6},85%,62%)"><b style="font-size:15px">${Math.round(p.relative_humidity_2m)}</b>%</span>`;
+  else if(LY==='sun')h=`<span style="color:hsl(48,95%,${35+Math.min(p.shortwave_radiation,1000)/1000*35}%)"><b style="font-size:15px">${Math.round(lx/1000)}</b>k</span>`;
+  else h=storm?'<i>⛈</i>':code>=51?`<i>🌧</i>${p.precipitation}`:`<span style="color:#8fb0bd">${Math.round(p.cloud_cover)}%</span>`;
+  L.marker([p.la,p.lo],{icon:L.divIcon({className:'',html:`<div class="mk">${h}</div>`,iconSize:[44,44],iconAnchor:[22,22]})}).bindPopup(`ลมจากทิศ ${p.wind_direction_10m}° ความเร็ว ${ws} กม./ชม.<br>ความชื้น ${Math.round(p.relative_humidity_2m)}% · เมฆ ${Math.round(p.cloud_cover)}%<br>ฝน ${p.precipitation} มม./ชม. · แสง ≈${lx.toLocaleString()} lx`).addTo(MG);
+ });
+ L.circleMarker(POS,{radius:6,color:'#2dd4bf',fillOpacity:.9}).addTo(MG);
+ $('legend').textContent=LG[LY];
+ $('mapst').textContent=`${GR.length} จุด${st?` · พบพายุฝนฟ้าคะนอง ${st} จุด`:''} · ${(GR[0]&&GR[0].time||'').replace('T',' ')}`;
+}
+locate();
+</script>
+</body>
+</html>
