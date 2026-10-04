@@ -51,7 +51,6 @@ export default async function handler(req, res) {
   }
 
   const system = SYSTEM + '\n\n' + ctxText(body.context);
-  // ใช้รุ่น gemini-1.5-flash ผ่าน v1beta endpoint ที่รองรับเสถียรที่สุด
   const m = 'gemini-1.5-flash';
 
   try {
@@ -59,8 +58,10 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: system }] },
-        contents: msgs.map((x) => ({ role: x.role === 'assistant' ? 'model' : 'user', parts: [{ text: x.content }] })),
+        contents: [
+          { role: 'user', parts: [{ text: `[System Instruction]\n${system}` }] },
+          ...msgs.map((x) => ({ role: x.role === 'assistant' ? 'model' : 'user', parts: [{ text: x.content }] }))
+        ],
         generationConfig: { maxOutputTokens: 1500, temperature: 0.4 },
       }),
     });
