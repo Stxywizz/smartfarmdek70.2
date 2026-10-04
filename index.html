@@ -269,7 +269,7 @@ function advice(){
  else if(W.t>=p.tmax)a.push(['w','🌡','อุณหภูมิสูงกว่าที่'+p.n+'ชอบ ระวังต้นเครียดช่วงบ่าย']);
  if(W.rain>=10)a.push(['w','🌧','ฝนตกมากวันนี้ งดรดน้ำ และตรวจการระบายน้ำ']);
  if(W.rh>85)a.push(['w','🍄','ความชื้นสูง เสี่ยงโรคเชื้อรา เว้นระยะต้นให้ลมผ่าน']);
- if(W.rad>50&&lx<p.lux*.5)a.push(['w','☁️️','แสงตอนนี้ต่ำกว่าที่'+p.n+'ต้องการ (ดูซ้ำช่วงเที่ยง)']);
+ if(W.rad>50&&lx<p.lux*.5)a.push(['w','☁','แสงตอนนี้ต่ำกว่าที่'+p.n+'ต้องการ (ดูซ้ำช่วงเที่ยง)']);
  if(!a.length)a.push(['','✅','สภาพอากาศเหมาะสม ดูแลตามปกติ']);
  if($('adv'))$('adv').innerHTML=a.map(x=>`<div class="adv ${x[0]}"><span>${x[1]}</span><span>${x[2]}</span></div>`).join('');
 }
@@ -439,7 +439,7 @@ async function place(la,lo){
  const locEl=$('loc');if(n&&locEl)locEl.textContent='📍 '+n+(locEl.dataset.def?' (ค่าเริ่มต้น)':'');
 }
 // AI assistant (เรียก /api/chat ซึ่งตรงกับ vercel.json และ api/chat.js)
-const AI_URL='/api/chat';let CH=[],busy=false;
+const AI_URL = '/api/chat';let CH=[],busy=false;
 function bub(t,c){const chatEl=$('chat');if(!chatEl)return null;const d=document.createElement('div');d.className='b '+c;d.textContent=t;chatEl.appendChild(d);chatEl.scrollTop=1e6;return d}
 function aiCtx(){
  const plantEl=$('plant'),locEl=$('loc');
