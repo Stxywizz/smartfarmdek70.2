@@ -390,8 +390,8 @@ async function place(la,lo){
  }catch(e){}}
  if(n)$('loc').textContent='📍 '+n+($('loc').dataset.def?' (ค่าเริ่มต้น)':'');
 }
-// AI assistant (เรียก /api ซึ่งเป็น Serverless Function ของ Vercel)
-const AI_URL='/api';let CH=[],busy=false;
+// AI assistant (เรียก /api/chat ซึ่งตรงกับ vercel.json และ api/chat.js)
+const AI_URL='/api/chat';let CH=[],busy=false;
 function bub(t,c){const d=document.createElement('div');d.className='b '+c;d.textContent=t;$('chat').appendChild(d);$('chat').scrollTop=1e6;return d}
 function aiCtx(){
  const c={plant:PLANTS[$('plant').value].n,place:$('loc').textContent.replace('📍 ','')};
@@ -416,7 +416,7 @@ $('csend').onclick=()=>ask($('cin').value);$('cin').onkeydown=e=>{if(e.key==='En
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR)$('mic').hidden=true;else $('mic').onclick=()=>{const r=new SR();r.lang='th-TH';r.onresult=e=>{$('cin').value=e.results[0][0].transcript};r.start()};
 // 7-day forecast
-const WX=c=>c>=95?'⛈':c>=80?'🌦':c>=61?'🌧':c>=51?'🌦':c>=45?'🌫':c>=3?'☁️️':c>=1?'⛅':'☀️';
+const WX=c=>c>=95?'⛈':c>=80?'🌦':c>=61?'🌧':c>=51?'🌦':c>=45?'🌫':c>=3?'☁':c>=1?'⛅':'☀️';
 async function forecast(la,lo){
  try{
   const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,et0_fao_evapotranspiration&forecast_days=7&timezone=auto`);
