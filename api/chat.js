@@ -63,16 +63,23 @@ export default async function handler(req, res) {
   try {
     let apiRes = null;
     let lastStatus = 0;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const retryable = [400, 404, 429, 500, 502, 503, 504]; // ลองซ้ำ/ข้ามไปโมเดลถัดไป
+    outer:
     for (const m of models) {
-      apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
-        body: payload,
-      });
-      if (apiRes.ok) break;
-      lastStatus = apiRes.status;
-      console.error(`model ${m} failed (${apiRes.status}):`, await apiRes.text());
-      if (apiRes.status !== 404 && apiRes.status !== 400) break; // 404/400 = โมเดลใช้ไม่ได้ ลองตัวถัดไป
+      for (let attempt = 0; attempt < 2; attempt++) {
+        apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
+          body: payload,
+        });
+        if (apiRes.ok) break outer;
+        lastStatus = apiRes.status;
+        console.error(`model ${m} attempt ${attempt + 1} failed (${apiRes.status}):`, await apiRes.text());
+        if (!retryable.includes(apiRes.status)) break outer; // เช่น 401/403 คีย์ผิด ลองซ้ำไม่ช่วย
+        if (apiRes.status === 404 || apiRes.status === 400) break; // โมเดลใช้ไม่ได้ ข้ามไปตัวถัดไปเลย
+        await sleep(700); // 503/429 ชั่วคราว รอแป๊บแล้วลองใหม่
+      }
     }
 
     if (!apiRes || !apiRes.ok) {
